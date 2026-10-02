@@ -1,0 +1,15 @@
+# Node modules
+node_modules/
+
+# Environment variables
+.env
+
+# Firebase service account key (NEVER push this to GitHub)
+config/serviceaccount.json
+
+# Mac OS junk
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*

@@ -1,0 +1,37 @@
+{
+  "name": "rentwheels",
+  "version": "1.0.0",
+  "description": "Car Rental Service Backend API using Node.js, Express, MongoDB, Firebase and Socket.io",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "seed": "node seed.js"
+  },
+  "keywords": [
+    "car-rental",
+    "nodejs",
+    "expressjs",
+    "mongodb",
+    "firebase",
+    "socket.io"
+  ],
+  "author": "Harish Kumavat",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.2",
+    "express-validator": "^7.2.0",
+    "firebase-admin": "^12.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.3.4",
+    "socket.io": "^4.7.5",
+    "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}

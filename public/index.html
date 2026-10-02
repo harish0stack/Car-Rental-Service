@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="RentWheels — Premium car rentals with real-time availability. Book sedans, SUVs, and more.">
+    <title>RentWheels — Premium Car Rentals</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- ═══════════ NAVIGATION ═══════════ -->
+    <nav class="nav" id="navbar">
+        <div class="nav__inner">
+            <a class="nav__logo" href="#" onclick="showView('home'); return false;">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v5"/><circle cx="16" cy="17" r="2"/><circle cx="7" cy="17" r="2"/><path d="M14 16H9"/></svg>
+                <span>RentWheels</span>
+            </a>
+            <div class="nav__links">
+                <a class="nav__link nav__link--active" id="nav-home"    href="#" onclick="showView('home'); return false;">Fleet</a>
+                <a class="nav__link" id="nav-rentals" href="#" onclick="showView('my-rentals'); return false;" style="display:none">My Rentals</a>
+                <a class="nav__link" id="nav-admin"   href="#" onclick="showView('admin'); return false;"      style="display:none">Admin</a>
+            </div>
+            <div class="nav__auth" id="nav-auth">
+                <button class="btn btn--ghost" onclick="openModal('login')">Login</button>
+                <button class="btn btn--accent" onclick="openModal('register')">Sign Up</button>
+                <button class="btn btn--ghost" onclick="openModal('admin-login')">Admin Login</button>
+            </div>
+            <div class="nav__user" id="nav-user" style="display:none">
+                <div class="nav__avatar" id="user-avatar-circle">H</div>
+                <span class="nav__username" id="user-display-name">User</span>
+                <button class="btn btn--ghost btn--sm" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ═══════════ TOAST ═══════════ -->
+    <div class="toast" id="toast">
+        <span class="toast__icon" id="toast-icon">✓</span>
+        <span id="toast-message">Done</span>
+    </div>
+
+    <!-- ═══════════ MODAL OVERLAY ═══════════ -->
+    <div class="overlay" id="modal-overlay" onclick="closeModal()"></div>
+
+    <!-- ═══════════ LOGIN MODAL ═══════════ -->
+    <div class="modal" id="modal-login">
+        <button class="modal__close" onclick="closeModal()">✕</button>
+        <div class="modal__logo">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#EA580C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v5"/><circle cx="16" cy="17" r="2"/><circle cx="7" cy="17" r="2"/><path d="M14 16H9"/></svg>
+        </div>
+        <h2 class="modal__title">Welcome back</h2>
+        <p class="modal__sub">Customer login to book and manage rentals</p>
+        <form id="form-login" onsubmit="handleLogin(event)">
+            <div class="field">
+                <label class="field__label">Username</label>
+                <input class="field__input" type="text" id="login-username" placeholder="Enter username" autocomplete="username" required>
+            </div>
+            <div class="field">
+                <label class="field__label">Password</label>
+                <input class="field__input" type="password" id="login-password" placeholder="Enter password" autocomplete="current-password" required>
+            </div>
+            <button class="btn btn--accent btn--full" type="submit" id="login-btn">Login as Customer</button>
+        </form>
+        <p class="modal__footer">New customer? <a href="#" onclick="switchModal('register')">Sign up free →</a></p>
+        <p class="modal__footer" style="margin-top:6px;font-size:12px">Administrator? <a href="#" onclick="switchModal('admin-login')">Admin Login →</a></p>
+    </div>
+
+    <!-- ═══════════ REGISTER MODAL ═══════════ -->
+    <div class="modal" id="modal-register">
+        <button class="modal__close" onclick="closeModal()">✕</button>
+        <div class="modal__logo">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#EA580C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v5"/><circle cx="16" cy="17" r="2"/><circle cx="7" cy="17" r="2"/><path d="M14 16H9"/></svg>
+        </div>
+        <h2 class="modal__title">Create account</h2>
+        <p class="modal__sub">Join thousands of happy drivers</p>
+        <form id="form-register" onsubmit="handleRegister(event)">
+            <div class="field">
+                <label class="field__label">Full Name</label>
+                <input class="field__input" type="text" id="reg-name" placeholder="Your full name" required>
+            </div>
+            <div class="field">
+                <label class="field__label">Username</label>
+                <input class="field__input" type="text" id="reg-username" placeholder="Choose a username" autocomplete="username" required>
+            </div>
+            <div class="field">
+                <label class="field__label">Email</label>
+                <input class="field__input" type="email" id="reg-email" placeholder="your@email.com" autocomplete="email" required>
+            </div>
+            <div class="field">
+                <label class="field__label">Password</label>
+                <input class="field__input" type="password" id="reg-password" placeholder="Min. 6 characters" autocomplete="new-password" required>
+            </div>
+            <button class="btn btn--accent btn--full" type="submit" id="register-btn">Create Customer Account</button>
+        </form>
+        <p class="modal__footer">Have an account? <a href="#" onclick="switchModal('login')">Login →</a></p>
+    </div>
+
+    <!-- ═══════════ ADMIN LOGIN MODAL ═══════════ -->
+    <div class="modal" id="modal-admin-login">
+        <button class="modal__close" onclick="closeModal()">✕</button>
+        <div class="modal__logo">
+            <span style="font-size:32px">👑</span>
+        </div>
+        <h2 class="modal__title">Admin Login</h2>
+        <p class="modal__sub">Fleet management & system controls</p>
+        <form id="form-admin-login" onsubmit="handleAdminLogin(event)">
+            <div class="field">
+                <label class="field__label">Admin Username</label>
+                <input class="field__input" type="text" id="admin-login-username" placeholder="admin" autocomplete="username" required>
+            </div>
+            <div class="field">
+                <label class="field__label">Password</label>
+                <input class="field__input" type="password" id="admin-login-password" placeholder="admin password" autocomplete="current-password" required>
+            </div>
+            <button class="btn btn--accent btn--full" type="submit" id="admin-login-btn">Login as Admin</button>
+        </form>
+        <p class="modal__footer">New admin? <a href="#" onclick="switchModal('admin-register')">Admin Sign Up →</a></p>
+        <p class="modal__footer" style="margin-top:6px;font-size:12px">Looking for rentals? <a href="#" onclick="switchModal('login')">Customer Login →</a></p>
+    </div>
+
+    <!-- ═══════════ ADMIN REGISTER MODAL ═══════════ -->
+    <div class="modal" id="modal-admin-register">
+        <button class="modal__close" onclick="closeModal()">✕</button>
+        <div class="modal__logo">
+            <span style="font-size:32px">👑</span>
+        </div>
+        <h2 class="modal__title">Admin Sign Up</h2>
+        <p class="modal__sub">Create an administrator profile</p>
+        <form id="form-admin-register" onsubmit="handleAdminRegister(event)">
+            <div class="field">
+                <label class="field__label">Full Name</label>
+                <input class="field__input" type="text" id="admin-reg-name" placeholder="Full name" required>
+            </div>
+            <div class="field">
+                <label class="field__label">Admin Username</label>
+                <input class="field__input" type="text" id="admin-reg-username" placeholder="Choose a username" autocomplete="username" required>
+            </div>
+            <div class="field">
+                <label class="field__label">Work Email</label>
+                <input class="field__input" type="email" id="admin-reg-email" placeholder="admin@rentwheels.com" autocomplete="email" required>
+            </div>
+            <div class="field">
+                <label class="field__label">Password</label>
+                <input class="field__input" type="password" id="admin-reg-password" placeholder="Min. 6 characters" autocomplete="new-password" required>
+            </div>
+            <button class="btn btn--accent btn--full" type="submit" id="admin-reg-btn">Sign Up as Admin</button>
+        </form>
+        <p class="modal__footer">Already an admin? <a href="#" onclick="switchModal('admin-login')">Admin Login →</a></p>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         VIEW: HOME
+    ════════════════════════════════════════════ -->
+    <main class="view view--active" id="view-home">
+
+        <!-- Hero -->
+        <section class="hero">
+            <div class="hero__inner">
+                <p class="hero__eyebrow">Premium Car Rental</p>
+                <h1 class="hero__title">Find Your<br>Perfect Ride</h1>
+                <p class="hero__sub">Transparent pricing · Instant booking · Real-time availability</p>
+                <div class="hero__search">
+                    <svg class="hero__search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                    <input class="hero__search-input" type="text" id="search-input" placeholder="Search by brand or model..." oninput="applyFilters()">
+                </div>
+            </div>
+            <!-- Real-time indicator -->
+            <div class="hero__live" id="live-indicator">
+                <span class="hero__live-dot"></span>
+                <span>Live availability</span>
+            </div>
+        </section>
+
+        <!-- Filters -->
+        <div class="filters-bar">
+            <div class="container">
+                <div class="filters-bar__inner">
+                    <select class="filter-select" id="filter-type" onchange="applyFilters()">
+                        <option value="">All Types</option>
+                        <option value="sedan">Sedan</option>
+                        <option value="suv">SUV</option>
+                        <option value="hatchback">Hatchback</option>
+                        <option value="truck">Truck</option>
+                        <option value="van">Van</option>
+                        <option value="coupe">Coupe</option>
+                    </select>
+                    <select class="filter-select" id="filter-fuel" onchange="applyFilters()">
+                        <option value="">All Fuels</option>
+                        <option value="petrol">Petrol</option>
+                        <option value="diesel">Diesel</option>
+                        <option value="electric">Electric</option>
+                        <option value="hybrid">Hybrid</option>
+                    </select>
+                    <select class="filter-select" id="filter-trans" onchange="applyFilters()">
+                        <option value="">Transmission</option>
+                        <option value="manual">Manual</option>
+                        <option value="automatic">Automatic</option>
+                    </select>
+                    <select class="filter-select" id="filter-avail" onchange="applyFilters()">
+                        <option value="">Availability</option>
+                        <option value="true">Available</option>
+                        <option value="false">Unavailable</option>
+                    </select>
+                    <button class="btn btn--ghost btn--sm" onclick="clearFilters()">Clear</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cars Grid -->
+        <div class="container section">
+            <div class="section__header">
+                <h2 class="section__title">Our Fleet</h2>
+                <span class="section__count" id="cars-count"></span>
+            </div>
+            <div class="cars-grid" id="cars-grid">
+                <div class="state-loading">
+                    <div class="spinner"></div>
+                    <p>Loading fleet...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ═══════════════════════════════════════
+         VIEW: CAR DETAIL
+    ════════════════════════════════════════════ -->
+    <main class="view" id="view-car-detail">
+        <div class="container section">
+            <button class="back-btn" onclick="showView('home')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Back to Fleet
+            </button>
+            <div id="car-detail-root"></div>
+        </div>
+    </main>
+
+    <!-- ═══════════════════════════════════════
+         VIEW: MY RENTALS
+    ════════════════════════════════════════════ -->
+    <main class="view" id="view-my-rentals">
+        <div class="container section">
+            <div class="section__header">
+                <h2 class="section__title">My Rentals</h2>
+            </div>
+            <div id="rentals-root">
+                <div class="state-loading"><div class="spinner"></div><p>Loading rentals...</p></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ═══════════════════════════════════════
+         VIEW: ADMIN DASHBOARD
+    ════════════════════════════════════════════ -->
+    <main class="view" id="view-admin">
+        <div class="container section">
+            <h2 class="section__title" style="margin-bottom:28px">Admin Dashboard</h2>
+
+            <!-- Stats Row -->
+            <div class="stats-row" id="admin-stats">
+                <div class="state-loading"><div class="spinner"></div></div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs" style="margin-top:36px">
+                <button class="tab tab--active" id="tab-btn-fleet"      onclick="switchTab('fleet')">Fleet</button>
+                <button class="tab"             id="tab-btn-rentals"    onclick="switchTab('rentals')">Rentals</button>
+                <button class="tab"             id="tab-btn-insurance"  onclick="switchTab('insurance')">Insurance</button>
+            </div>
+
+            <!-- Tab: Fleet -->
+            <div class="tab-panel tab-panel--active" id="tab-fleet">
+                <div class="tab-panel__header">
+                    <h3>All Cars</h3>
+                    <button class="btn btn--accent btn--sm" onclick="toggleForm('form-add-car')">+ Add Car</button>
+                </div>
+
+                <!-- Add Car Form -->
+                <div class="inline-form" id="form-add-car" style="display:none">
+                    <h4 class="inline-form__title">Add New Car</h4>
+                    <form onsubmit="handleAddCar(event)">
+                        <div class="form-grid">
+                            <div class="field"><label class="field__label">Brand</label><input class="field__input" type="text" id="f-car-brand" placeholder="Toyota" required></div>
+                            <div class="field"><label class="field__label">Model</label><input class="field__input" type="text" id="f-car-model" placeholder="Camry" required></div>
+                            <div class="field"><label class="field__label">Year</label><input class="field__input" type="number" id="f-car-year" placeholder="2023" required></div>
+                            <div class="field"><label class="field__label">License Plate</label><input class="field__input" type="text" id="f-car-plate" placeholder="MH01AB1234" required></div>
+                            <div class="field"><label class="field__label">Type</label>
+                                <select class="field__input" id="f-car-type" required>
+                                    <option value="">Select</option>
+                                    <option value="sedan">Sedan</option><option value="suv">SUV</option>
+                                    <option value="hatchback">Hatchback</option><option value="truck">Truck</option>
+                                    <option value="van">Van</option><option value="coupe">Coupe</option>
+                                </select>
+                            </div>
+                            <div class="field"><label class="field__label">Price/Day (₹)</label><input class="field__input" type="number" id="f-car-price" placeholder="1200" required></div>
+                            <div class="field"><label class="field__label">Seats</label><input class="field__input" type="number" id="f-car-seats" placeholder="5" required></div>
+                            <div class="field"><label class="field__label">Fuel</label>
+                                <select class="field__input" id="f-car-fuel" required>
+                                    <option value="">Select</option>
+                                    <option value="petrol">Petrol</option><option value="diesel">Diesel</option>
+                                    <option value="electric">Electric</option><option value="hybrid">Hybrid</option>
+                                </select>
+                            </div>
+                            <div class="field"><label class="field__label">Transmission</label>
+                                <select class="field__input" id="f-car-trans" required>
+                                    <option value="">Select</option>
+                                    <option value="manual">Manual</option><option value="automatic">Automatic</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="field"><label class="field__label">Description</label>
+                            <textarea class="field__input field__textarea" id="f-car-desc" placeholder="Short description..."></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button class="btn btn--accent" type="submit">Add Car</button>
+                            <button class="btn btn--ghost" type="button" onclick="toggleForm('form-add-car')">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="admin-fleet-table"><div class="state-loading"><div class="spinner"></div></div></div>
+            </div>
+
+            <!-- Tab: Rentals -->
+            <div class="tab-panel" id="tab-rentals">
+                <div id="admin-rentals-table"><div class="state-loading"><div class="spinner"></div></div></div>
+            </div>
+
+            <!-- Tab: Insurance -->
+            <div class="tab-panel" id="tab-insurance">
+                <div class="tab-panel__header">
+                    <h3>Insurance Policies</h3>
+                    <button class="btn btn--accent btn--sm" onclick="toggleForm('form-add-insurance')">+ Add Policy</button>
+                </div>
+
+                <div class="inline-form" id="form-add-insurance" style="display:none">
+                    <h4 class="inline-form__title">Add Insurance Policy</h4>
+                    <form onsubmit="handleAddInsurance(event)">
+                        <div class="form-grid">
+                            <div class="field"><label class="field__label">Car ID</label><input class="field__input" type="text" id="f-ins-carid" placeholder="MongoDB ObjectId" required></div>
+                            <div class="field"><label class="field__label">Provider</label><input class="field__input" type="text" id="f-ins-provider" placeholder="HDFC Ergo" required></div>
+                            <div class="field"><label class="field__label">Policy Number</label><input class="field__input" type="text" id="f-ins-policy" placeholder="POL123456" required></div>
+                            <div class="field"><label class="field__label">Coverage Type</label>
+                                <select class="field__input" id="f-ins-coverage" required>
+                                    <option value="">Select</option>
+                                    <option value="basic">Basic</option>
+                                    <option value="standard">Standard</option>
+                                    <option value="comprehensive">Comprehensive</option>
+                                </select>
+                            </div>
+                            <div class="field"><label class="field__label">Coverage Amount (₹)</label><input class="field__input" type="number" id="f-ins-amount" placeholder="500000" required></div>
+                            <div class="field"><label class="field__label">Premium/Year (₹)</label><input class="field__input" type="number" id="f-ins-premium" placeholder="12000" required></div>
+                            <div class="field"><label class="field__label">Start Date</label><input class="field__input" type="date" id="f-ins-start" required></div>
+                            <div class="field"><label class="field__label">Expiry Date</label><input class="field__input" type="date" id="f-ins-expiry" required></div>
+                        </div>
+                        <div class="form-actions">
+                            <button class="btn btn--accent" type="submit">Add Policy</button>
+                            <button class="btn btn--ghost" type="button" onclick="toggleForm('form-add-insurance')">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="admin-insurance-table"><div class="state-loading"><div class="spinner"></div></div></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

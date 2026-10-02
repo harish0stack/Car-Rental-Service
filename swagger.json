@@ -1,0 +1,442 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "RentWheels REST API",
+    "version": "1.0.0",
+    "description": "Comprehensive Car Rental Service Backend API with Role-Based Access Control, Real-Time WebSockets (Socket.io), and Insurance Management. Developed as part of B.Tech CSE Backend Development Case Study 30.",
+    "contact": {
+      "name": "Harish Kumavat",
+      "email": "harish@rentwheels.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5001",
+      "description": "Local Development Server"
+    }
+  ],
+  "tags": [
+    { "name": "Auth", "description": "Customer Registration & Authentication" },
+    { "name": "Admin", "description": "Administrator Authentication & Overviews" },
+    { "name": "Cars", "description": "Fleet Management & Car Discovery" },
+    { "name": "Rentals", "description": "Vehicle Booking & Rental Lifecycle" },
+    { "name": "Insurance", "description": "Vehicle Policy & Coverage Management" },
+    { "name": "System", "description": "Health & Telemetry" }
+  ],
+  "paths": {
+    "/api/health": {
+      "get": {
+        "tags": ["System"],
+        "summary": "Health check",
+        "description": "Checks whether the RentWheels server is online and operational.",
+        "responses": {
+          "200": {
+            "description": "API is online",
+            "content": {
+              "application/json": {
+                "example": { "message": "RentWheels API is running" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Register a new customer",
+        "description": "Public registration endpoint for new drivers and customers.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "username", "email", "password"],
+                "properties": {
+                  "name": { "type": "string", "example": "John Driver" },
+                  "username": { "type": "string", "example": "johndoe" },
+                  "email": { "type": "string", "example": "john@example.com" },
+                  "password": { "type": "string", "example": "user123" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Customer registered successfully" },
+          "400": { "description": "Validation error or username/email already taken" }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Customer login",
+        "description": "Authenticates a customer and returns a JWT token.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["username", "password"],
+                "properties": {
+                  "username": { "type": "string", "example": "johndoe" },
+                  "password": { "type": "string", "example": "user123" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "login successful",
+                  "token": "eyJhbGciOiJIUzI1NiIsIn...",
+                  "role": "user"
+                }
+              }
+            }
+          },
+          "400": { "description": "Invalid username or password" }
+        }
+      }
+    },
+    "/api/auth/profile": {
+      "get": {
+        "tags": ["Auth"],
+        "summary": "Get logged-in customer profile",
+        "security": [{ "TokenHeader": [] }],
+        "responses": {
+          "200": { "description": "Customer profile fetched successfully" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/api/admin/register": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Register a new administrator",
+        "description": "Creates an administrator profile stored securely in the Admin collection.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "username", "email", "password"],
+                "properties": {
+                  "name": { "type": "string", "example": "Fleet Administrator" },
+                  "username": { "type": "string", "example": "admin" },
+                  "email": { "type": "string", "example": "admin@rentwheels.com" },
+                  "password": { "type": "string", "example": "admin123" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Admin account created successfully" },
+          "400": { "description": "Username or email already exists" }
+        }
+      }
+    },
+    "/api/admin/login": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Admin login",
+        "description": "Authenticates against the Admin collection and returns an admin JWT token.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["username", "password"],
+                "properties": {
+                  "username": { "type": "string", "example": "admin" },
+                  "password": { "type": "string", "example": "admin123" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Admin login successful",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Admin login successful",
+                  "token": "eyJhbGciOiJIUzI1NiIsIn...",
+                  "role": "admin"
+                }
+              }
+            }
+          },
+          "401": { "description": "Invalid admin credentials" }
+        }
+      }
+    },
+    "/api/admin/cars": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Admin: Get all cars in fleet",
+        "description": "Fulfills Case Study 30 requirement: Returns full fleet overview for administrators.",
+        "security": [{ "TokenHeader": [] }],
+        "responses": {
+          "200": { "description": "Cars fetched successfully" },
+          "403": { "description": "Access denied. Admins only." }
+        }
+      }
+    },
+    "/api/admin/rentals": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Admin: Get all platform rentals",
+        "description": "Fulfills Case Study 30 requirement: Returns all customer bookings across the platform.",
+        "security": [{ "TokenHeader": [] }],
+        "responses": {
+          "200": { "description": "All rentals fetched successfully" },
+          "403": { "description": "Access denied. Admins only." }
+        }
+      }
+    },
+    "/api/cars": {
+      "get": {
+        "tags": ["Cars"],
+        "summary": "List all available cars",
+        "description": "Public car browsing endpoint with filter parameters.",
+        "parameters": [
+          { "name": "type", "in": "query", "schema": { "type": "string" }, "description": "sedan, suv, hatchback, coupe, truck, van" },
+          { "name": "fuelType", "in": "query", "schema": { "type": "string" }, "description": "petrol, diesel, electric, hybrid" },
+          { "name": "transmission", "in": "query", "schema": { "type": "string" }, "description": "manual, automatic" },
+          { "name": "available", "in": "query", "schema": { "type": "boolean" }, "description": "true or false" }
+        ],
+        "responses": {
+          "200": { "description": "Cars list fetched successfully" }
+        }
+      },
+      "post": {
+        "tags": ["Cars"],
+        "summary": "Add a new car (Admin only)",
+        "description": "Admin creates a vehicle. Triggers real-time Socket.io broadcast to all connected clients.",
+        "security": [{ "TokenHeader": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["brand", "model", "year", "licensePlate", "type", "pricePerDay", "seats", "fuelType", "transmission"],
+                "properties": {
+                  "brand": { "type": "string", "example": "Tesla" },
+                  "model": { "type": "string", "example": "Model 3 Performance" },
+                  "year": { "type": "number", "example": 2024 },
+                  "licensePlate": { "type": "string", "example": "TSLA-2024" },
+                  "type": { "type": "string", "enum": ["sedan", "suv", "hatchback", "truck", "van", "coupe"], "example": "sedan" },
+                  "pricePerDay": { "type": "number", "example": 89 },
+                  "seats": { "type": "number", "example": 5 },
+                  "fuelType": { "type": "string", "enum": ["petrol", "diesel", "electric", "hybrid"], "example": "electric" },
+                  "transmission": { "type": "string", "enum": ["manual", "automatic"], "example": "automatic" },
+                  "description": { "type": "string", "example": "All-electric sedan with autopilot." },
+                  "imageUrl": { "type": "string", "example": "https://images.unsplash.com/photo-1536700503339-1e4b06520771" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Car created successfully" },
+          "400": { "description": "Validation error or license plate already exists" },
+          "403": { "description": "Admins only" }
+        }
+      }
+    },
+    "/api/cars/{id}": {
+      "get": {
+        "tags": ["Cars"],
+        "summary": "Get car details by ID",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Car details fetched" },
+          "404": { "description": "Car not found" }
+        }
+      },
+      "put": {
+        "tags": ["Cars"],
+        "summary": "Update car details (Admin only)",
+        "security": [{ "TokenHeader": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "type": "object" } } }
+        },
+        "responses": {
+          "200": { "description": "Car updated successfully" },
+          "403": { "description": "Admins only" },
+          "404": { "description": "Car not found" }
+        }
+      },
+      "delete": {
+        "tags": ["Cars"],
+        "summary": "Delete a car from fleet (Admin only)",
+        "security": [{ "TokenHeader": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Car deleted successfully" },
+          "403": { "description": "Admins only" },
+          "404": { "description": "Car not found" }
+        }
+      }
+    },
+    "/api/rentals": {
+      "get": {
+        "tags": ["Rentals"],
+        "summary": "Get rentals",
+        "description": "Customers see their personal rentals; administrators see all platform rentals.",
+        "security": [{ "TokenHeader": [] }],
+        "responses": {
+          "200": { "description": "Rentals fetched" },
+          "401": { "description": "Unauthorized" }
+        }
+      },
+      "post": {
+        "tags": ["Rentals"],
+        "summary": "Book a car rental",
+        "description": "Customer books a car. Emits real-time Socket.io availability update.",
+        "security": [{ "TokenHeader": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["carId", "startDate", "endDate", "pickupLocation", "dropoffLocation"],
+                "properties": {
+                  "carId": { "type": "string", "example": "6ac01e18011b6c23b0c887dc" },
+                  "startDate": { "type": "string", "format": "date", "example": "2026-10-05" },
+                  "endDate": { "type": "string", "format": "date", "example": "2026-10-09" },
+                  "pickupLocation": { "type": "string", "example": "Downtown Hub" },
+                  "dropoffLocation": { "type": "string", "example": "Downtown Hub" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Rental booked successfully" },
+          "400": { "description": "Validation error or car already rented" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/api/rentals/{id}": {
+      "get": {
+        "tags": ["Rentals"],
+        "summary": "Get rental booking by ID",
+        "security": [{ "TokenHeader": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Rental fetched" },
+          "404": { "description": "Rental not found" }
+        }
+      }
+    },
+    "/api/rentals/{id}/status": {
+      "put": {
+        "tags": ["Rentals"],
+        "summary": "Update rental status (Admin only)",
+        "description": "Admins confirm, activate, complete, or cancel a rental. Socket.io broadcasts updates.",
+        "security": [{ "TokenHeader": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["status"],
+                "properties": {
+                  "status": { "type": "string", "enum": ["pending", "confirmed", "active", "completed", "cancelled"], "example": "confirmed" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Status updated successfully" },
+          "403": { "description": "Admins only" },
+          "404": { "description": "Rental not found" }
+        }
+      }
+    },
+    "/api/insurance": {
+      "get": {
+        "tags": ["Insurance"],
+        "summary": "Get all insurance policies (Admin only)",
+        "security": [{ "TokenHeader": [] }],
+        "responses": {
+          "200": { "description": "Insurance policies fetched" },
+          "403": { "description": "Admins only" }
+        }
+      },
+      "post": {
+        "tags": ["Insurance"],
+        "summary": "Create an insurance policy (Admin only)",
+        "security": [{ "TokenHeader": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["carId", "provider", "policyNumber", "coverageType", "coverageAmount", "premium", "startDate", "expiryDate"],
+                "properties": {
+                  "carId": { "type": "string", "example": "6ac01e18011b6c23b0c887dc" },
+                  "provider": { "type": "string", "example": "Allianz Global Care" },
+                  "policyNumber": { "type": "string", "example": "ALZ-2024-998" },
+                  "coverageType": { "type": "string", "enum": ["basic", "standard", "comprehensive"], "example": "comprehensive" },
+                  "coverageAmount": { "type": "number", "example": 100000 },
+                  "premium": { "type": "number", "example": 1200 },
+                  "startDate": { "type": "string", "format": "date", "example": "2024-01-01" },
+                  "expiryDate": { "type": "string", "format": "date", "example": "2025-01-01" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Policy created successfully" },
+          "403": { "description": "Admins only" }
+        }
+      }
+    },
+    "/api/insurance/{id}": {
+      "get": {
+        "tags": ["Insurance"],
+        "summary": "Get insurance policy by ID (Admin only)",
+        "security": [{ "TokenHeader": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Insurance policy fetched" },
+          "404": { "description": "Policy not found" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "TokenHeader": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "token",
+        "description": "JWT authentication token passed in the 'token' header"
+      }
+    }
+  }
+}
